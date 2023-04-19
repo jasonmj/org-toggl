@@ -104,9 +104,8 @@ Add the auth token)."
 	  :sync sync
 	  :timeout (or timeout toggl-default-timeout)))
 
-(defun toggl-show-timer ()
-  "Shows the current timer info (if any) in the echo area"
-  (interactive)
+(defun toggl-get-timer ()
+  "Returns the current timer info as a string."
   (let* ((timer (alist-get 'data toggl-current-time-entry))
          (description (alist-get 'description timer))
          (timer-start-string (alist-get 'start timer)))
@@ -120,10 +119,20 @@ Add the auth token)."
                                         "0" (number-to-string (floor hours)) ":"
                                         (time-number-to-string (floor (mod minutes 60))) ":"
                                         (time-number-to-string (floor (mod duration 60))))))
-                 (if description (message (concat description
-                                                       " - "
-                                                       (truncate-string-to-width duration-string 35)))
-		   (message "No timer")))))))
+                 (if description
+		     (concat description " - " (truncate-string-to-width duration-string 35))
+		   "Invalid timer")))
+	   "No timer")))
+
+(defun time-number-to-string(number)
+  (if (> number 9)
+      (number-to-string number)
+    (concat "0" (number-to-string number))))
+
+(defun toggl-show-timer ()
+  "Shows the current timer info (if any) in the echo area."
+  (interactive)
+  (message (toggl-get-timer)))
 
 (defvar toggl-projects nil
   "A list of available projects.
